@@ -26,6 +26,8 @@ public class ExampleOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        initiate();
+
         while(!isStopRequested()) {
 
             frontLeft.setPower(gamepad1.left_stick_y);
