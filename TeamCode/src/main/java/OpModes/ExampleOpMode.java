@@ -31,9 +31,9 @@ public class ExampleOpMode extends LinearOpMode {
         while(!isStopRequested()) {
 
             frontLeft.setPower(gamepad1.left_stick_y);
-            backLeft.setPower(gamepad1.left_stick_y);
+            backLeft.setPower(gamepad1.left_stick_y / 2); // to compensate for 2:1 gear ratio on front wheels
             frontRight.setPower(gamepad1.right_stick_y);
-            backRight.setPower(gamepad1.right_stick_y);
+            backRight.setPower(gamepad1.right_stick_y / 2);
 
         }
 

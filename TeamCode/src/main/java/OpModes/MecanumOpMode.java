@@ -45,8 +45,8 @@ public class MecanumOpMode extends LinearOpMode {
 
             frontLeft.setPower(v1);
             frontRight.setPower(v2);
-            backLeft.setPower(v3);
-            backRight.setPower(v4);
+            backLeft.setPower(v3 / 2); // to compensate for 2:1 gear ratio on front wheels
+            backRight.setPower(v4 / 2);
 
             telemetry.addData("Left Sensor Red", leftColor.red());
             telemetry.addData("Left Sensor Green", leftColor.green());
