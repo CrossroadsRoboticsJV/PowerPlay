@@ -23,8 +23,8 @@ public class MecanumOpMode extends LinearOpMode {
         leftColor = hardwareMap.get(ColorSensor.class, "leftColor");
         rightColor = hardwareMap.get(ColorSensor.class, "rightColor");
 
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
     }
 
@@ -36,7 +36,7 @@ public class MecanumOpMode extends LinearOpMode {
         while(!isStopRequested()) {
 
             double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
             double rightX = gamepad1.right_stick_x;
             final double v1 = r * Math.cos(robotAngle) + rightX;
             final double v2 = r * Math.sin(robotAngle) - rightX;
