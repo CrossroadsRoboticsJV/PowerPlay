@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import HelperClasses.ColorSensorController;
+
 
 @TeleOp
 public class MecanumOpMode extends LinearOpMode {
@@ -33,6 +35,9 @@ public class MecanumOpMode extends LinearOpMode {
 
         initiate();
 
+        ColorSensorController leftColorController = new ColorSensorController(leftColor);
+        ColorSensorController rightColorController = new ColorSensorController(rightColor);
+
         while(!isStopRequested()) {
 
             double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
@@ -51,29 +56,16 @@ public class MecanumOpMode extends LinearOpMode {
             telemetry.addData("Left Sensor Red", leftColor.red());
             telemetry.addData("Left Sensor Green", leftColor.green());
             telemetry.addData("Left Sensor Blue", leftColor.blue());
-            telemetry.addData("Left sensor dominant RGB color", readDominantColor(leftColor));
+            telemetry.addData("Left sensor dominant RGB color", leftColorController.readDominantColor());
             telemetry.addData("Right Sensor Red", rightColor.red());
             telemetry.addData("Right Sensor Green", rightColor.green());
             telemetry.addData("Right Sensor Blue", rightColor.blue());
-            telemetry.addData("Right sensor dominant RGB color", readDominantColor(rightColor));
+            telemetry.addData("Right sensor dominant RGB color", rightColorController.readDominantColor());
 
             telemetry.update();
 
         }
 
-    }
-
-    String readDominantColor(ColorSensor sensor) {
-        int r = sensor.red();
-        int g = sensor.green();
-        int b = sensor.blue();
-        if(r > g && r > b) {
-            return("red");
-        } else if(g > r && g > b) {
-            return("green");
-        } else {
-            return("blue");
-        }
     }
 
 }
