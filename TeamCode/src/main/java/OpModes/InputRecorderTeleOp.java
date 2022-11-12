@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.util.ArrayList;
 
+import HelperClasses.Timer;
+
 @TeleOp
 public class InputRecorderTeleOp extends LinearOpMode {
 
@@ -35,6 +37,7 @@ public class InputRecorderTeleOp extends LinearOpMode {
         boolean xFirstPressed = true;
         boolean isRecording = false;
         float[] currentInputs = new float[]{};
+        Timer timer = new Timer();
 
         ArrayList<float[]> inputs = new ArrayList<>();
 
@@ -53,6 +56,8 @@ public class InputRecorderTeleOp extends LinearOpMode {
 
             }
 
+            telemetry.addData("time", timer.getTime());
+
             telemetry.update();
 
             if(gamepad1.x && xFirstPressed) {
@@ -61,13 +66,14 @@ public class InputRecorderTeleOp extends LinearOpMode {
 
                 if(isRecording) {
 
-                    inputs.add(endRecord(currentInputs));
+                    inputs.add(endRecord(currentInputs, timer));
                     isRecording = false;
 
 
                 } else {
 
-                    currentInputs = new float[]{gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, System.currentTimeMillis()};
+                    currentInputs = new float[]{gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x};
+                    timer.resetTimer();
                     move(currentInputs[0], currentInputs[1], currentInputs[2]);
                     isRecording = true;
 
@@ -90,28 +96,26 @@ public class InputRecorderTeleOp extends LinearOpMode {
         final double v3 = r * Math.sin(robotAngle) + rightX;
         final double v4 = r * Math.cos(robotAngle) - rightX;
 
-        frontLeft.setPower(v1 / 3); // slower speeds in auto are more accurate
-        frontRight.setPower(v2 / 3);
-        backLeft.setPower(v3 / 3 / 2); // to compensate for 2:1 gear ratio on front wheels
-        backRight.setPower(v4 / 3 / 2);
+        frontLeft.setPower(v1 / 1.5); // slower speeds in auto are more accurate
+        frontRight.setPower(v2 / 1.5);
+        backLeft.setPower(v3 / 1.5 / 2); // to compensate for 2:1 gear ratio on front wheels
+        backRight.setPower(v4 / 1.5 / 2);
 
     }
 
-    float[] endRecord(float[] currentInputs) {
+    float[] endRecord(float[] currentInputs, Timer timer) {
 
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
 
-        float[] recordedInput = new float[] {
+        return(new float[] {
                 currentInputs[0],
                 currentInputs[1],
                 currentInputs[2],
-                System.currentTimeMillis() - currentInputs[3]
-        };
-
-        return(recordedInput);
+                timer.getTime()
+        });
 
     }
 
