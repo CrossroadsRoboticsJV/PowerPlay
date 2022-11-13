@@ -17,6 +17,8 @@ public class MecanumOpMode extends LinearOpMode {
     ColorSensor leftColor, rightColor;
     Servo leftClaw, rightClaw;
 
+    int linearSlideDownPos;
+
     void initiate() {
 
         frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -33,6 +35,8 @@ public class MecanumOpMode extends LinearOpMode {
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        linearSlideDownPos = linearSlide.getCurrentPosition();
 
     }
 
@@ -64,13 +68,18 @@ public class MecanumOpMode extends LinearOpMode {
 
 
 
-            if(gamepad1.right_trigger > 0.2) {
+            if(gamepad1.right_trigger > 0.1) {
 
-                linearSlide.setPower(-gamepad1.right_trigger/2); // raise slide
+                linearSlide.setPower(-gamepad1.right_trigger); // raise slide
 
-            } else if(gamepad1.left_trigger > 0.2) {
+            } else if(gamepad1.left_trigger > 0.1) {
 
-                linearSlide.setPower(gamepad1.left_trigger/2);
+                linearSlide.setPower(gamepad1.left_trigger);
+
+            } else if(linearSlide.getCurrentPosition() - linearSlideDownPos > 800){
+
+//                linearSlide.setPower(((linearSlide.getCurrentPosition() - linearSlideDownPos) / 20000)); // more power required to hold position when higher
+                linearSlide.setPower(0.1);
 
             } else {
 
@@ -89,14 +98,14 @@ public class MecanumOpMode extends LinearOpMode {
                     if(isClawOpen) {
 
                         isClawOpen = false;
-                        leftClaw.setPosition(0.2);
-                        rightClaw.setPosition(0.8);
+                        leftClaw.setPosition(0.45);
+                        rightClaw.setPosition(0.5);
 
                     } else {
 
                         isClawOpen = true;
-                        leftClaw.setPosition(0.8);
-                        rightClaw.setPosition(0.2);
+                        leftClaw.setPosition(0.15);
+                        rightClaw.setPosition(0.8);
 
                     }
 
@@ -118,6 +127,8 @@ public class MecanumOpMode extends LinearOpMode {
             telemetry.addData("Right Sensor Green", rightColor.green());
             telemetry.addData("Right Sensor Blue", rightColor.blue());
             telemetry.addData("Right sensor dominant RGB color", rightColorController.readDominantColor());
+
+            telemetry.addData("Linear Slide Position", linearSlide.getCurrentPosition());
 
             telemetry.update();
 
