@@ -5,16 +5,23 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.ArrayList;
 
+import HelperClasses.ButtonToggler;
+import HelperClasses.ClawController;
+import HelperClasses.ColorSensorController;
+import HelperClasses.LinearSlideController;
 import HelperClasses.Timer;
 
 @TeleOp
 public class InputRecorderTeleOp extends LinearOpMode {
 
-    DcMotorEx frontLeft, frontRight, backLeft, backRight;
+    DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor leftColor, rightColor;
+    Servo leftClaw, rightClaw;
+    int linearSlideDownPos;
 
     void initiate() {
 
@@ -22,12 +29,18 @@ public class InputRecorderTeleOp extends LinearOpMode {
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight = hardwareMap.get(DcMotorEx.class, "backRight");
+        linearSlide = hardwareMap.get(DcMotorEx.class, "linearSlide");
 
         leftColor = hardwareMap.get(ColorSensor.class, "leftColor");
         rightColor = hardwareMap.get(ColorSensor.class, "rightColor");
 
+        leftClaw = hardwareMap.get(Servo.class, "leftClaw");
+        rightClaw = hardwareMap.get(Servo.class, "rightClaw");
+
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        linearSlideDownPos = linearSlide.getCurrentPosition();
 
     }
 
@@ -40,8 +53,16 @@ public class InputRecorderTeleOp extends LinearOpMode {
         Timer timer = new Timer();
 
         ArrayList<float[]> inputs = new ArrayList<>();
+        // Inputs in format [leftX, leftY, rightX, leftTrigger, rightTrigger, time]
 
-        // Inputs in format [leftX, leftY, rightX, time]
+        ButtonToggler toggler = new ButtonToggler();
+
+        ColorSensorController leftColorController = new ColorSensorController(leftColor);
+        ColorSensorController rightColorController = new ColorSensorController(rightColor);
+
+        ClawController clawController = new ClawController(leftClaw, rightClaw);
+
+        LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
 
         while(!isStopRequested()) {
 
@@ -51,36 +72,47 @@ public class InputRecorderTeleOp extends LinearOpMode {
                 telemetry.addData("leftStickX", input[0]);
                 telemetry.addData("leftStickY", input[1]);
                 telemetry.addData("rightStickX", input[2]);
-                telemetry.addData("timeMillis", input[3]);
+                telemetry.addData("leftTrigger", input[3]);
+                telemetry.addData("rightTrigger", input[4]);
+                telemetry.addData("timeMillis", input[5]);
                 telemetry.addLine("");
 
             }
 
             telemetry.addData("time", timer.getTime());
+            telemetry.addData("Left Sensor Red", leftColor.red());
+            telemetry.addData("Left Sensor Green", leftColor.green());
+            telemetry.addData("Left Sensor Blue", leftColor.blue());
+            telemetry.addData("Left sensor dominant RGB color", leftColorController.readDominantColor());
+            telemetry.addData("Right Sensor Red", rightColor.red());
+            telemetry.addData("Right Sensor Green", rightColor.green());
+            telemetry.addData("Right Sensor Blue", rightColor.blue());
+            telemetry.addData("Right sensor dominant RGB color", rightColorController.readDominantColor());
+
+            telemetry.addData("Linear Slide Position", linearSlide.getCurrentPosition());
 
             telemetry.update();
 
-            if(gamepad1.x && xFirstPressed) {
 
-                xFirstPressed = false;
 
-                if(isRecording) {
+            if(toggler.checkToggle(gamepad1.x)) {
 
-                    inputs.add(endRecord(currentInputs, timer));
+                if (isRecording) {
+
+                    inputs.add(endRecord(currentInputs, timer, slideController));
                     isRecording = false;
 
 
                 } else {
 
-                    currentInputs = new float[]{gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x};
+                    currentInputs = new float[]{gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.left_trigger, gamepad1.right_trigger};
                     timer.resetTimer();
                     move(currentInputs[0], currentInputs[1], currentInputs[2]);
+                    slideController.update(currentInputs[3], currentInputs[4]);
                     isRecording = true;
 
                 }
 
-            } else if(!gamepad1.x) {
-                xFirstPressed = true;
             }
 
         }
@@ -103,17 +135,21 @@ public class InputRecorderTeleOp extends LinearOpMode {
 
     }
 
-    float[] endRecord(float[] currentInputs, Timer timer) {
+    float[] endRecord(float[] currentInputs, Timer timer, LinearSlideController slideController) {
 
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
 
+        slideController.update(0, 0);
+
         return(new float[] {
                 currentInputs[0],
                 currentInputs[1],
                 currentInputs[2],
+                currentInputs[3],
+                currentInputs[4],
                 timer.getTime()
         });
 

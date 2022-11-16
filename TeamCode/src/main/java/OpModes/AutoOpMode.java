@@ -47,8 +47,6 @@ public class AutoOpMode extends LinearOpMode {
         ColorSensorController leftColorController = new ColorSensorController(leftColor);
         ColorSensorController rightColorController = new ColorSensorController(rightColor);
 
-        // TODO: Position a color sensor by the cone sleeve - use correct sensor below - move to corresponding location
-
         leftClaw.setPosition(0.15);
         rightClaw.setPosition(0.8);
 

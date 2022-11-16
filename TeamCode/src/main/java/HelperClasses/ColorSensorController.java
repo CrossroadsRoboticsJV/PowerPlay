@@ -11,9 +11,9 @@ public class ColorSensorController {
     }
 
     public String readDominantColor() {
-        int r = this.sensor.red();
-        int g = this.sensor.green();
-        int b = this.sensor.blue();
+        int r = sensor.red();
+        int g = sensor.green();
+        int b = sensor.blue();
         if(r > g && r > b) {
             return("red");
         } else if(g > r && g > b) {

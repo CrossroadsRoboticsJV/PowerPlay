@@ -7,7 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import HelperClasses.ClawController;
 import HelperClasses.ColorSensorController;
+import HelperClasses.LinearSlideController;
 
 
 @TeleOp
@@ -48,6 +50,10 @@ public class MecanumOpMode extends LinearOpMode {
         ColorSensorController leftColorController = new ColorSensorController(leftColor);
         ColorSensorController rightColorController = new ColorSensorController(rightColor);
 
+        ClawController clawController = new ClawController(leftClaw, rightClaw);
+
+        LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
+
         boolean xFirstPressed = true;
         boolean isClawOpen = true;
 
@@ -66,58 +72,9 @@ public class MecanumOpMode extends LinearOpMode {
             backLeft.setPower(v3 / 2); // to compensate for 2:1 gear ratio on front wheels
             backRight.setPower(v4 / 2);
 
+            slideController.update(gamepad1.left_trigger, gamepad1.right_trigger);
 
-
-            if(gamepad1.right_trigger > 0.1) {
-
-                linearSlide.setPower(-gamepad1.right_trigger); // raise slide
-
-            } else if(gamepad1.left_trigger > 0.1) {
-
-                linearSlide.setPower(gamepad1.left_trigger);
-
-            } else if(linearSlide.getCurrentPosition() - linearSlideDownPos > 800){
-
-//                linearSlide.setPower(((linearSlide.getCurrentPosition() - linearSlideDownPos) / 20000)); // more power required to hold position when higher
-                linearSlide.setPower(0.1);
-
-            } else {
-
-                linearSlide.setPower(0);
-
-            }
-
-
-
-            if(gamepad1.x) {
-
-                if(xFirstPressed) {
-
-                    xFirstPressed = false;
-
-                    if(isClawOpen) {
-
-                        isClawOpen = false;
-                        leftClaw.setPosition(0.45);
-                        rightClaw.setPosition(0.5);
-
-                    } else {
-
-                        isClawOpen = true;
-                        leftClaw.setPosition(0.15);
-                        rightClaw.setPosition(0.8);
-
-                    }
-
-                }
-
-            } else {
-
-                xFirstPressed = true;
-
-            }
-
-
+            clawController.checkAndToggle(gamepad1.x);
 
             telemetry.addData("Left Sensor Red", leftColor.red());
             telemetry.addData("Left Sensor Green", leftColor.green());
