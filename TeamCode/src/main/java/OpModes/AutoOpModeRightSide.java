@@ -7,16 +7,16 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import HelperClasses.ColorSensorController;
+import HelperClasses.LinearSlideController;
 
 @Autonomous
-public class AutoOpMode extends LinearOpMode {
+public class AutoOpModeRightSide extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor leftColor, rightColor;
     Servo leftClaw, rightClaw;
+    int slideDownPos;
 
     void initiate() {
 
@@ -35,6 +35,8 @@ public class AutoOpMode extends LinearOpMode {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        slideDownPos = linearSlide.getCurrentPosition();
+
     }
 
     @Override
@@ -47,41 +49,50 @@ public class AutoOpMode extends LinearOpMode {
         ColorSensorController leftColorController = new ColorSensorController(leftColor);
         ColorSensorController rightColorController = new ColorSensorController(rightColor);
 
+        LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
+
         leftClaw.setPosition(0.15);
         rightClaw.setPosition(0.8);
 
         sleep(500);
 
-//        leftClaw.setPosition(0.45);
-//        rightClaw.setPosition(0.5);
-        linearSlide.setPower(0.5);
-        sleep(5750);
-        linearSlide.setPower(0.1);
+        slideController.update((float) 0, (float) 0.65);
+        sleep(1400);
+        slideController.update(0, 0);
+
+        move(0, -0.4, 0);
+        sleep(1000);
+        stopMotors(slideController);
+
+        leftClaw.setPosition(0.45);
+        rightClaw.setPosition(0.5);
+        sleep(500);
+
+        move(1, 0, -0.1);
+        sleep(1600);
+        stopMotors(slideController);
+
+        move(0, 1, 0);
+        sleep(1000);
+        stopMotors(slideController);
+
+        slideController.update((float) 0, (float) 0.65);
+        sleep(1400);
+        slideController.update(0, 0);
 
         move(0, -1.0, 0);
-        sleep(1500);
-//        move(0, -1, 0);
-//        sleep(1416);
+        sleep(1700);
 
-        stopMotors();
+        stopMotors(slideController);
         sleep(250);
-
-//        move(0, 0, -1);
-//        sleep(327);
-//        move(0, -1, 0);
-//        sleep(500);
-//        stopMotors();
-//        sleep(100);
-//
         String color = leftColorController.readDominantColor();
-
         sleep(250);
-//
+
         telemetry.addData("Color", color);
         telemetry.update();
 
         move(0, -1, 0);
-        sleep(350);
+        sleep(550);
 
         if(color.equals("red")) {
 
@@ -91,12 +102,12 @@ public class AutoOpMode extends LinearOpMode {
 //            sleep(1214);
 //            move(0, -1, 0);
 //            sleep(1893);
-            stopMotors();
+            stopMotors(slideController);
 
 
         } else if(color.equals("green")) {
 
-            stopMotors();
+            stopMotors(slideController);
 
         } else {
 
@@ -106,7 +117,7 @@ public class AutoOpMode extends LinearOpMode {
 //            sleep(1214);
 //            move(0, 1, 0);
 //            sleep(1893);
-            stopMotors();
+            stopMotors(slideController);
 
         }
 
@@ -132,11 +143,12 @@ public class AutoOpMode extends LinearOpMode {
 
     }
 
-    void stopMotors() {
+    void stopMotors(LinearSlideController slideController) {
         frontLeft.setPower(0); // slower speeds in auto are more accurate
         frontRight.setPower(0);
         backLeft.setPower(0); // to compensate for 2:1 gear ratio on front wheels
         backRight.setPower(0);
+        slideController.update(0, 0);
     }
 
 }
