@@ -7,7 +7,6 @@ public class ClawController {
     Servo leftServo;
     Servo rightServo;
     public boolean isOpen;
-    boolean firstPressed;
     ButtonToggler toggler = new ButtonToggler();
 
     public ClawController(Servo leftServo, Servo rightServo) {

@@ -1,26 +1,21 @@
 package OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import HelperClasses.ClawController;
 import HelperClasses.ColorSensorController;
 import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
-
-@TeleOp
-public class MecanumOpMode extends LinearOpMode {
+public class TestAuto extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor leftColor, rightColor;
     Servo leftClaw, rightClaw;
-
-    int linearSlideDownPos;
+    int slideDownPos;
 
     void initiate() {
 
@@ -39,7 +34,7 @@ public class MecanumOpMode extends LinearOpMode {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        linearSlideDownPos = linearSlide.getCurrentPosition();
+        slideDownPos = linearSlide.getCurrentPosition();
 
     }
 
@@ -48,35 +43,50 @@ public class MecanumOpMode extends LinearOpMode {
 
         initiate();
 
+        waitForStart();
+
         ColorSensorController leftColorController = new ColorSensorController(leftColor);
         ColorSensorController rightColorController = new ColorSensorController(rightColor);
 
-        ClawController clawController = new ClawController(leftClaw, rightClaw);
-
-        LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
+        LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
 
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
-        driveController.init(false);
+        driveController.init(true);
 
-        boolean xFirstPressed = true;
-        boolean isClawOpen = true;
+        telemetry.addLine("Moving one tile forwards...");
+        telemetry.update();
 
-        while(!isStopRequested()) {
+        driveController.forwards(1);
 
-            driveController.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 1);
+        while(!driveController.waitForMotors()) {
+            sleep(10);
+        }
 
-            slideController.update(gamepad1.left_trigger, gamepad1.right_trigger);
+        telemetry.addLine("Moving one tile backwards...");
+        telemetry.update();
 
-            clawController.checkAndToggle(gamepad1.x);
+        driveController.backwards(1);
 
-            telemetry.addData("Linear Slide Position", linearSlide.getCurrentPosition());
-            telemetry.addData("Back Left Motor Position", backLeft.getCurrentPosition());
-            telemetry.addData("Back Right Motor Position", backRight.getCurrentPosition());
-            telemetry.addData("Front Left Motor Position", frontLeft.getCurrentPosition());
-            telemetry.addData("Front Right Motor Position", frontRight.getCurrentPosition());
+        while(!driveController.waitForMotors()) {
+            sleep(10);
+        }
 
-            telemetry.update();
+        telemetry.addLine("Moving one tile right...");
+        telemetry.update();
 
+        driveController.right(1);
+
+        while(!driveController.waitForMotors()) {
+            sleep(10);
+        }
+
+        telemetry.addLine("Moving one tile left...");
+        telemetry.update();
+
+        driveController.left(1);
+
+        while(!driveController.waitForMotors()) {
+            sleep(10);
         }
 
     }
