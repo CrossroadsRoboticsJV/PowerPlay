@@ -14,7 +14,7 @@ import HelperClasses.LinearSlideController;
 public class AutoOpModeLeftSide extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
-    ColorSensor leftColor, rightColor;
+    ColorSensor colorSensor;
     Servo leftClaw, rightClaw;
     int slideDownPos;
 
@@ -26,8 +26,7 @@ public class AutoOpModeLeftSide extends LinearOpMode {
         backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         linearSlide = hardwareMap.get(DcMotorEx.class, "linearSlide");
 
-        leftColor = hardwareMap.get(ColorSensor.class, "leftColor");
-        rightColor = hardwareMap.get(ColorSensor.class, "rightColor");
+        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
 
         leftClaw = hardwareMap.get(Servo.class, "leftClaw");
         rightClaw = hardwareMap.get(Servo.class, "rightClaw");
@@ -46,8 +45,7 @@ public class AutoOpModeLeftSide extends LinearOpMode {
 
         waitForStart();
 
-        ColorSensorController leftColorController = new ColorSensorController(leftColor);
-        ColorSensorController rightColorController = new ColorSensorController(rightColor);
+        ColorSensorController colorController = new ColorSensorController(colorSensor);
 
         LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
 
@@ -85,7 +83,7 @@ public class AutoOpModeLeftSide extends LinearOpMode {
 
         stopMotors(slideController);
         sleep(250);
-        String color = leftColorController.readDominantColor();
+        String color = colorController.readDominantColor();
         sleep(250);
 
         telemetry.addData("Color", color);

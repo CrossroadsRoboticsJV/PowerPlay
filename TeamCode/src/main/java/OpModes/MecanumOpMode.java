@@ -17,9 +17,8 @@ import HelperClasses.LinearSlideController;
 public class MecanumOpMode extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
-    ColorSensor leftColor, rightColor;
+    ColorSensor colorSensor;
     Servo leftClaw, rightClaw;
-
     int linearSlideDownPos;
 
     void initiate() {
@@ -30,8 +29,7 @@ public class MecanumOpMode extends LinearOpMode {
         backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         linearSlide = hardwareMap.get(DcMotorEx.class, "linearSlide");
 
-        leftColor = hardwareMap.get(ColorSensor.class, "leftColor");
-        rightColor = hardwareMap.get(ColorSensor.class, "rightColor");
+        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
 
         leftClaw = hardwareMap.get(Servo.class, "leftClaw");
         rightClaw = hardwareMap.get(Servo.class, "rightClaw");
@@ -41,6 +39,8 @@ public class MecanumOpMode extends LinearOpMode {
 
         linearSlideDownPos = linearSlide.getCurrentPosition();
 
+
+
     }
 
     @Override
@@ -48,18 +48,14 @@ public class MecanumOpMode extends LinearOpMode {
 
         initiate();
 
-        ColorSensorController leftColorController = new ColorSensorController(leftColor);
-        ColorSensorController rightColorController = new ColorSensorController(rightColor);
+        ColorSensorController colorController = new ColorSensorController(colorSensor);
 
         ClawController clawController = new ClawController(leftClaw, rightClaw);
 
         LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
 
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
-        driveController.init(false);
-
-        boolean xFirstPressed = true;
-        boolean isClawOpen = true;
+        driveController.init();
 
         while(!isStopRequested()) {
 
