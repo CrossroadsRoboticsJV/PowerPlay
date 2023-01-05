@@ -13,7 +13,7 @@ import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
 @Autonomous
-public class AutoOpModeLeftSide extends LinearOpMode {
+public class BasicAutoOpMode extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
@@ -67,42 +67,25 @@ public class AutoOpModeLeftSide extends LinearOpMode {
         telemetry.addData("Color", color);
         telemetry.update();
 
-        driveController.forwards(0.6, 0.4);
-        driveController.backwards(0.3, 0.5);
+        driveController.forwards(0.3, 0.3);
 
-        // Put cone on high pole
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.HIGH, 0.7);
-
-        driveController.right(1.55, 0.7);
-        driveController.forwards(0.1, 0.2);
-
-        sleep(500);
-
-        clawController.toggleClaw();
-
-        sleep(200);
-
-        driveController.left(0.5, 0.7);
-
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.MID, 0.3);
-
-        // Go to correct square
         if(color.equals("red")) {
 
-            driveController.left(2.1, 0.7);
+            driveController.left(1.1, 0.7);
 
         } else if(color.equals("green")) {
 
-            driveController.left(1, 0.7);
+            driveController.forwards(0.8, 0.5);
+            driveController.backwards(0.5, 0.5);
 
         } else {
 
-            // Already there!
+            driveController.right(1.1, 0.6);
 
         }
 
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.DOWN, 0.5);
-        sleep(6000);
+        slideController.goToPos(LinearSlideController.LinearSlidePosition.DOWN, 0.3);
+        sleep(5000);
 
     }
 

@@ -1,8 +1,9 @@
 package OpModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -12,13 +13,14 @@ import HelperClasses.ColorSensorController;
 import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
-@Autonomous
-public class TestAuto extends LinearOpMode {
+
+@TeleOp
+public class AutoTestTeleOp extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
     Servo leftClaw, rightClaw;
-    int slideDownPos;
+    int linearSlideDownPos;
 
     void initiate() {
 
@@ -36,7 +38,9 @@ public class TestAuto extends LinearOpMode {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        slideDownPos = linearSlide.getCurrentPosition();
+        linearSlideDownPos = linearSlide.getCurrentPosition();
+
+
 
     }
 
@@ -45,81 +49,47 @@ public class TestAuto extends LinearOpMode {
 
         initiate();
 
-        waitForStart();
-
         ColorSensorController colorController = new ColorSensorController(colorSensor);
 
         ClawController clawController = new ClawController(leftClaw, rightClaw);
 
-        LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
+        LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
 
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
         driveController.init();
 
+        while(!isStopRequested()) {
 
 
-        telemetry.addLine("Moving one tile forwards...");
-        telemetry.update();
-
-        driveController.forwards(1);
-        driveController.waitForMotors();
-
-
-
-        telemetry.addLine("Moving one tile backwards...");
-        telemetry.update();
-
-        driveController.backwards(1);
-        driveController.waitForMotors();
+            if(gamepad1.y) {
+                slideController.goToPos(LinearSlideController.LinearSlidePosition.HIGH, 0.4);
+            } else if(gamepad1.b) {
+                slideController.goToPos(LinearSlideController.LinearSlidePosition.MID, 0.4);
+            } else if(gamepad1.x) {
+                slideController.goToPos(LinearSlideController.LinearSlidePosition.LOW, 0.4);
+            } else if(gamepad1.a) {
+                slideController.goToPos(LinearSlideController.LinearSlidePosition.DOWN, 0.4);
+            }
 
 
 
-        telemetry.addLine("Moving one tile right...");
-        telemetry.update();
+            if(gamepad1.left_bumper) {
+                driveController.left(1, 0.5);
+            } else if(gamepad1.right_bumper) {
+                driveController.right(1, 0.5);
+            } else if(gamepad1.right_trigger > 0.5) {
+                driveController.forwards(1, 0.5);
+            } else if(gamepad1.left_trigger > 0.5) {
+                driveController.backwards(1, 0.5);
+            }
 
-        driveController.right(1);
-        driveController.waitForMotors();
+            telemetry.addData("Linear Slide Position", linearSlide.getCurrentPosition());
+            telemetry.addData("Linear Slide Target Position", linearSlide.getTargetPosition());
+            telemetry.addData("Linear Slide Down Position", slideController.motorDownPosition);
 
+            telemetry.update();
 
-
-        telemetry.addLine("Moving one tile left...");
-        telemetry.update();
-
-        driveController.left(1);
-        driveController.waitForMotors();
-
-
-
-        telemetry.addLine("Toggling claw (1)...");
-        telemetry.update();
-
-        clawController.toggleClaw();
-        sleep(500);
-
-
-
-        telemetry.addLine("Toggling claw (2)...");
-        telemetry.update();
-
-        clawController.toggleClaw();
-        sleep(500);
-
-
-
-        telemetry.addLine("Toggling claw (3)...");
-        telemetry.update();
-
-        clawController.toggleClaw();
-        sleep(500);
-
-        telemetry.addLine("Toggling claw (4)...");
-        telemetry.update();
-
-        clawController.toggleClaw();
-        sleep(500);
-
-
-
+        }
 
     }
 

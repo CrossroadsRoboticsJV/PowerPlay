@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class LinearSlideController {
 
     DcMotorEx slideMotor;
-    int motorDownPosition;
+    public int motorDownPosition;
 
     // motorDownPosition pos DOWN
     // -1510 pos LOW
@@ -43,32 +43,26 @@ public class LinearSlideController {
 
     }
 
-    public void waitForMotor() {
-        while(slideMotor.isBusy()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Uncaught", e);
-            }
-        }
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void goToPos(LinearSlidePosition pos, float power) {
+    public void goToPos(LinearSlidePosition pos, double power) {
         switch (pos) {
             case DOWN:
                 slideMotor.setTargetPosition(motorDownPosition);
+                break;
             case LOW:
                 slideMotor.setTargetPosition(motorDownPosition - 1510);
+                break;
             case MID:
                 slideMotor.setTargetPosition(motorDownPosition - 2800);
+                break;
             case HIGH:
                 slideMotor.setTargetPosition(motorDownPosition - 4100);
+                break;
             default:
                 break;
         }
 
         slideMotor.setPower(power);
+
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
