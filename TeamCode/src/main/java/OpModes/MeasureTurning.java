@@ -1,19 +1,22 @@
 package OpModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import HelperClasses.ClawController;
 import HelperClasses.ColorSensorController;
 import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
-@Autonomous
-public class AutoOpModeRightSide extends LinearOpMode {
+@TeleOp
+public class MeasureTurning extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
@@ -43,7 +46,6 @@ public class AutoOpModeRightSide extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-
         initiate();
         waitForStart();
         ColorSensorController colorController = new ColorSensorController(colorSensor);
@@ -51,60 +53,33 @@ public class AutoOpModeRightSide extends LinearOpMode {
         LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
         driveController.init();
+        List<Integer> diffs = new ArrayList<Integer>();
+        diffs.add(frontLeft.getCurrentPosition());
+        diffs.add(backLeft.getCurrentPosition());
+        diffs.add(frontRight.getCurrentPosition());
+        diffs.add(backRight.getCurrentPosition());
 
-        clawController.toggleClaw();
-        sleep(500);
 
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.MID, 0.6);
+        while(!isStopRequested()) {
 
-        driveController.forwards(0.7, 0.6);
-        driveController.forwards(0.2, 0.3);
+            driveController.drive(0, 0, gamepad1.right_stick_x, gamepad1.right_stick_x);
 
-        sleep(250);
-        String color = colorController.readDominantColor();
-        sleep(250);
+            telemetry.addData("Front Left Position:", frontLeft.getCurrentPosition());
+            telemetry.addData("Back Left Position:", backLeft.getCurrentPosition());
+            telemetry.addData("Front Right Position:", frontRight.getCurrentPosition());
+            telemetry.addData("Back Right Position:", backRight.getCurrentPosition());
 
-        telemetry.addData("Color", color);
-        telemetry.update();
+            telemetry.addData("Front Left Diff:", frontLeft.getCurrentPosition() - diffs.get(0));
+            telemetry.addData("Back Left Diff:", backLeft.getCurrentPosition() - diffs.get(1));
+            telemetry.addData("Front Right Diff:", frontRight.getCurrentPosition() - diffs.get(2));
+            telemetry.addData("Back Right Diff:", backRight.getCurrentPosition() - diffs.get(3));
 
-        driveController.forwards(0.6, 0.4);
-        driveController.backwards(0.3, 0.5);
+            telemetry.update();
 
-        // Put cone on high pole
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.HIGH, 0.7);
 
-        driveController.left(1.55, 0.7);
-
-        sleep(1000);
-
-        slideController.update((float) 0.1, 0);
-        sleep(500);
-        slideController.update(0, 0);
-
-        clawController.toggleClaw();
-
-        sleep(200);
-
-        driveController.right(0.5, 0.7);
-
-        // Go to correct square
-        if(color.equals("red")) {
-
-            // Already there!
-
-        } else if(color.equals("green")) {
-
-            driveController.right(1, 0.7);
-
-        } else {
-
-            driveController.right(2.1, 0.7);
 
         }
-
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.DOWN, 0.5);
-        sleep(6000);
-
+        
     }
 
 }

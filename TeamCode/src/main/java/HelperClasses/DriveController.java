@@ -10,6 +10,9 @@ public class DriveController {
 
     DcMotorEx frontLeft, backLeft, frontRight, backRight;
     int tilesToPos = 1050;
+    double degreesToPos = 21.825;
+
+    // ~ 55000 position (half for back wheels) for 7 rotations, giving ~ 7857 position for 360 and ~21.825 per 1 degree
 
     public DriveController(DcMotorEx frontLeft, DcMotorEx backLeft, DcMotorEx frontRight, DcMotorEx backRight) {
         this.frontLeft = frontLeft;

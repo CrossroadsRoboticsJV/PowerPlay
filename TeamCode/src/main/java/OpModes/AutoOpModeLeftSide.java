@@ -73,18 +73,20 @@ public class AutoOpModeLeftSide extends LinearOpMode {
         // Put cone on high pole
         slideController.goToPos(LinearSlideController.LinearSlidePosition.HIGH, 0.7);
 
-        driveController.right(1.55, 0.7);
+        driveController.right(1.45, 0.7);
         driveController.forwards(0.1, 0.2);
 
+        sleep(1000);
+
+        slideController.update((float) 0.1, 0);
         sleep(500);
+        slideController.update(0, 0);
 
         clawController.toggleClaw();
 
-        sleep(200);
+        sleep(500);
 
         driveController.left(0.5, 0.7);
-
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.MID, 0.3);
 
         // Go to correct square
         if(color.equals("red")) {
