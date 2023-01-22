@@ -19,7 +19,7 @@ public class AutoTestTeleOp extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
-    Servo leftClaw, rightClaw;
+    Servo leftClaw, rightClaw, clawServo;
     int linearSlideDownPos;
 
     void initiate() {
@@ -34,6 +34,7 @@ public class AutoTestTeleOp extends LinearOpMode {
 
         leftClaw = hardwareMap.get(Servo.class, "leftClaw");
         rightClaw = hardwareMap.get(Servo.class, "rightClaw");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -51,7 +52,7 @@ public class AutoTestTeleOp extends LinearOpMode {
 
         ColorSensorController colorController = new ColorSensorController(colorSensor);
 
-        ClawController clawController = new ClawController(leftClaw, rightClaw);
+        ClawController clawController = new ClawController(leftClaw, rightClaw, clawServo);
 
         LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
 

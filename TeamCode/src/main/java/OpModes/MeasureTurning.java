@@ -20,7 +20,7 @@ public class MeasureTurning extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
-    Servo leftClaw, rightClaw;
+    Servo leftClaw, rightClaw, clawServo;
     int slideDownPos;
 
     void initiate() {
@@ -35,6 +35,7 @@ public class MeasureTurning extends LinearOpMode {
 
         leftClaw = hardwareMap.get(Servo.class, "leftClaw");
         rightClaw = hardwareMap.get(Servo.class, "rightClaw");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -49,11 +50,11 @@ public class MeasureTurning extends LinearOpMode {
         initiate();
         waitForStart();
         ColorSensorController colorController = new ColorSensorController(colorSensor);
-        ClawController clawController = new ClawController(leftClaw, rightClaw);
+        ClawController clawController = new ClawController(leftClaw, rightClaw, clawServo);
         LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
         driveController.init();
-        List<Integer> diffs = new ArrayList<Integer>();
+        List<Integer> diffs = new ArrayList<>();
         diffs.add(frontLeft.getCurrentPosition());
         diffs.add(backLeft.getCurrentPosition());
         diffs.add(frontRight.getCurrentPosition());
@@ -79,7 +80,7 @@ public class MeasureTurning extends LinearOpMode {
 
 
         }
-        
+
     }
 
 }

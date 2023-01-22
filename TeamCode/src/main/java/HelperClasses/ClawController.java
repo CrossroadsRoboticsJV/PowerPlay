@@ -2,16 +2,29 @@ package HelperClasses;
 
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.checkerframework.checker.units.qual.C;
+
+// middle 0.57, left 0.89, right 0
+
 public class ClawController {
+
+    public enum ClawPosition {
+        LEFT,
+        MIDDLE,
+        RIGHT,
+    }
 
     Servo leftServo;
     Servo rightServo;
+    Servo clawServo;
     public boolean isOpen = true;
+    public ClawPosition clawPosition = ClawPosition.MIDDLE;
     ButtonToggler toggler = new ButtonToggler();
 
-    public ClawController(Servo leftServo, Servo rightServo) {
+    public ClawController(Servo leftServo, Servo rightServo, Servo clawServo) {
         this.leftServo = leftServo;
         this.rightServo = rightServo;
+        this.clawServo = clawServo;
     }
 
     void openClaw() {
@@ -22,6 +35,49 @@ public class ClawController {
     void closeClaw() {
         leftServo.setPosition(0.15);
         rightServo.setPosition(0.8);
+    }
+
+    public void clawRight() {
+
+        if(clawPosition == ClawPosition.LEFT) {
+            clawPosition = ClawPosition.MIDDLE;
+            clawServo.setPosition(0.57);
+        } else if(clawPosition == ClawPosition.MIDDLE) {
+            clawPosition = ClawPosition.RIGHT;
+            clawServo.setPosition(0);
+        }
+
+    }
+
+    public void clawLeft() {
+
+        if(clawPosition == ClawPosition.RIGHT) {
+            clawPosition = ClawPosition.MIDDLE;
+            clawServo.setPosition(0.57);
+        } else if(clawPosition == ClawPosition.MIDDLE) {
+            clawPosition = ClawPosition.LEFT;
+            clawServo.setPosition(0.89);
+        }
+
+    }
+
+    void interpretClawPosition() {
+        double diff1 = Math.abs(clawServo.getPosition());
+        double diff2 = Math.abs(clawServo.getPosition() - 0.57);
+        double diff3 = Math.abs(clawServo.getPosition() - 0.89);
+
+        if(diff1 < diff2 && diff1 < diff3) {
+            clawPosition = ClawPosition.RIGHT;
+        } else if(diff2 < diff1 && diff2 < diff3) {
+            clawPosition = ClawPosition.MIDDLE;
+        } else {
+            clawPosition = ClawPosition.LEFT;
+        }
+    }
+
+    public void adjustClaw(float stickPos) {
+        clawServo.setPosition(clawServo.getPosition() - (stickPos / 100));
+        interpretClawPosition();
     }
 
     /**

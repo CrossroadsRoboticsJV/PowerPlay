@@ -10,6 +10,18 @@ public class ColorSensorController {
         this.sensor = sensor;
     }
 
+    public int red() {
+        return sensor.red();
+    }
+
+    public int green() {
+        return sensor.green();
+    }
+
+    public int blue() {
+        return sensor.blue();
+    }
+
     public String readDominantColor() {
         int r = sensor.red();
         int g = sensor.green();

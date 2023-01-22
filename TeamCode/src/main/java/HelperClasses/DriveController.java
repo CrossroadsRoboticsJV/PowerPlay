@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 public class DriveController {
 
     DcMotorEx frontLeft, backLeft, frontRight, backRight;
@@ -71,8 +73,34 @@ public class DriveController {
 
         frontLeft.setPower(v1 * speedFactor);
         frontRight.setPower(v2 * speedFactor);
-        backLeft.setPower(v3 * speedFactor / 2); // to compensate for 2:1 gear ratio on front wheels
-        backRight.setPower(v4 * speedFactor / 2);
+        backLeft.setPower(v3 * speedFactor);
+        backRight.setPower(v4 * speedFactor);
+    }
+
+    public void turnRight(double degrees, double power) {
+        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        frontRight.setTargetPosition(frontRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        backLeft.setTargetPosition(backLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        backRight.setTargetPosition(backRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(-power);
+        backRight.setPower(-power);
+        setRunToPosition();
+        waitForMotors();
+    }
+
+    public void turnLeft(double degrees, double power) {
+        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        frontRight.setTargetPosition(frontRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        backLeft.setTargetPosition(backLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        backRight.setTargetPosition(backRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        frontLeft.setPower(-power);
+        frontRight.setPower(-power);
+        backLeft.setPower(power);
+        backRight.setPower(power);
+        setRunToPosition();
+        waitForMotors();
     }
 
     /**
@@ -83,14 +111,14 @@ public class DriveController {
      */
 
     public void forwards(double tiles, double power) {
-        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + (int) Math.round(tiles * tilesToPos * 2));
-        frontRight.setTargetPosition(frontRight.getCurrentPosition() + (int) Math.round(tiles * tilesToPos * 2));
+        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + (int) Math.round(tiles * tilesToPos));
+        frontRight.setTargetPosition(frontRight.getCurrentPosition() + (int) Math.round(tiles * tilesToPos));
         backLeft.setTargetPosition(backLeft.getCurrentPosition() + (int) Math.round(tiles * tilesToPos));
         backRight.setTargetPosition(backRight.getCurrentPosition() + (int) Math.round(tiles * tilesToPos));
         frontLeft.setPower(power);
         frontRight.setPower(power);
-        backLeft.setPower(power/2);
-        backRight.setPower(power/2);
+        backLeft.setPower(power);
+        backRight.setPower(power);
         setRunToPosition();
         waitForMotors();
     }
@@ -102,14 +130,14 @@ public class DriveController {
      */
 
     public void backwards(double tiles, double power) {
-        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() - (int) Math.round(tiles * tilesToPos * 2) );
-        frontRight.setTargetPosition(frontRight.getCurrentPosition() - (int) Math.round(tiles * tilesToPos * 2));
+        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() - (int) Math.round(tiles * tilesToPos ));
+        frontRight.setTargetPosition(frontRight.getCurrentPosition() - (int) Math.round(tiles * tilesToPos));
         backLeft.setTargetPosition(backLeft.getCurrentPosition() - (int) Math.round(tiles * tilesToPos));
         backRight.setTargetPosition(backRight.getCurrentPosition() - (int) Math.round(tiles * tilesToPos));
         frontLeft.setPower(power);
         frontRight.setPower(power);
-        backLeft.setPower(power/2);
-        backRight.setPower(power/2);
+        backLeft.setPower(power);
+        backRight.setPower(power);
         setRunToPosition();
         waitForMotors();
     }
@@ -121,14 +149,14 @@ public class DriveController {
      */
 
     public void left(double tiles, double power) {
-        frontLeft.setTargetPosition((int) Math.round(frontLeft.getCurrentPosition() - (int) Math.round(tiles * tilesToPos * 2) * 1.15));
-        frontRight.setTargetPosition((int) Math.round(frontRight.getCurrentPosition() + (int) Math.round(tiles * tilesToPos * 2) * 1.15));
+        frontLeft.setTargetPosition((int) Math.round(frontLeft.getCurrentPosition() - (int) Math.round(tiles * tilesToPos) * 1.15));
+        frontRight.setTargetPosition((int) Math.round(frontRight.getCurrentPosition() + (int) Math.round(tiles * tilesToPos) * 1.15));
         backLeft.setTargetPosition((int) Math.round(backLeft.getCurrentPosition() + (int) Math.round(tiles * tilesToPos) * 1.15));
         backRight.setTargetPosition((int) Math.round(backRight.getCurrentPosition() - (int) Math.round(tiles * tilesToPos) * 1.15));
         frontLeft.setPower(power);
         frontRight.setPower(power);
-        backLeft.setPower(power/2);
-        backRight.setPower(power/2);
+        backLeft.setPower(power);
+        backRight.setPower(power);
         setRunToPosition();
         waitForMotors();
     }
@@ -140,14 +168,14 @@ public class DriveController {
      */
 
     public void right(double tiles, double power) {
-        frontLeft.setTargetPosition((int) Math.round(frontLeft.getCurrentPosition() + (int) Math.round(tiles * tilesToPos * 2) * 1.15));
-        frontRight.setTargetPosition((int) Math.round(frontRight.getCurrentPosition() - (int) Math.round(tiles * tilesToPos * 2) * 1.15));
+        frontLeft.setTargetPosition((int) Math.round(frontLeft.getCurrentPosition() + (int) Math.round(tiles * tilesToPos) * 1.15));
+        frontRight.setTargetPosition((int) Math.round(frontRight.getCurrentPosition() - (int) Math.round(tiles * tilesToPos) * 1.15));
         backLeft.setTargetPosition((int) Math.round(backLeft.getCurrentPosition() - (int) Math.round(tiles * tilesToPos) * 1.15));
         backRight.setTargetPosition((int) Math.round(backRight.getCurrentPosition() + (int) Math.round(tiles * tilesToPos) * 1.15));
         frontLeft.setPower(power);
         frontRight.setPower(power);
-        backLeft.setPower(power/2);
-        backRight.setPower(power/2);
+        backLeft.setPower(power);
+        backRight.setPower(power);
         setRunToPosition();
         waitForMotors();
     }
@@ -164,6 +192,49 @@ public class DriveController {
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    void setRunWithoutEncoders() {
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public float forwardUntilPoleAndAdjust(DistanceController sensor) {
+        float startPos = frontLeft.getCurrentPosition();
+        setRunWithoutEncoders();
+        drive(0, -0.3, 0, 1);
+        while(!(sensor.getDistance(DistanceUnit.INCH) < 6)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Uncaught", e);
+            }
+        }
+        drive(0, 0, 0, 0);
+
+        forwards(0.15, 0.2);
+
+        return((frontLeft.getCurrentPosition() - startPos) / tilesToPos);
+    }
+
+    public float backwardUntilPoleAndAdjust(DistanceController sensor, boolean right) {
+        float startPos = frontLeft.getCurrentPosition();
+        setRunWithoutEncoders();
+        drive(0, 0.3, 0, 1);
+        while(!(sensor.getDistance(DistanceUnit.INCH) < 6)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Uncaught", e);
+            }
+        }
+        drive(0, 0, 0, 0);
+
+        backwards(0.15, 0.2);
+
+        return((startPos - frontLeft.getCurrentPosition()) / tilesToPos);
     }
 
 }

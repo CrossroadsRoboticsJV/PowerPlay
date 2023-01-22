@@ -5,10 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import HelperClasses.ButtonToggler;
 import HelperClasses.ClawController;
 import HelperClasses.ColorSensorController;
+import HelperClasses.DistanceController;
 import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
@@ -18,7 +23,8 @@ public class MecanumOpMode extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
-    Servo leftClaw, rightClaw;
+    DistanceSensor leftDistanceSensor, rightDistanceSensor;
+    Servo leftClaw, rightClaw, clawServo;
     int linearSlideDownPos;
 
     void initiate() {
@@ -31,8 +37,12 @@ public class MecanumOpMode extends LinearOpMode {
 
         colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
 
+        leftDistanceSensor = hardwareMap.get(DistanceSensor.class, "leftDistanceSensor");
+        rightDistanceSensor = hardwareMap.get(DistanceSensor.class, "rightDistanceSensor");
+
         leftClaw = hardwareMap.get(Servo.class, "leftClaw");
         rightClaw = hardwareMap.get(Servo.class, "rightClaw");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -50,26 +60,53 @@ public class MecanumOpMode extends LinearOpMode {
 
         ColorSensorController colorController = new ColorSensorController(colorSensor);
 
-        ClawController clawController = new ClawController(leftClaw, rightClaw);
+        ButtonToggler leftBumper = new ButtonToggler();
+        ButtonToggler rightBumper = new ButtonToggler();
+
+        ClawController clawController = new ClawController(leftClaw, rightClaw, clawServo);
 
         LinearSlideController slideController = new LinearSlideController(linearSlide, linearSlideDownPos);
+
+        DistanceController leftDistanceController = new DistanceController(leftDistanceSensor);
+        DistanceController rightDistanceController = new DistanceController(rightDistanceSensor);
 
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
         driveController.init();
 
         while(!isStopRequested()) {
 
-            driveController.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 1);
+            if(gamepad1.right_trigger > 0.5) {
+                driveController.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 1);
+            } else {
+                driveController.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 0.8);
+            }
 
-            slideController.update(gamepad1.left_trigger, gamepad1.right_trigger);
+            slideController.update(gamepad2.left_trigger, gamepad2.right_trigger);
 
-            clawController.checkAndToggle(gamepad1.x);
+            clawController.checkAndToggle(gamepad2.x);
+
+            if(leftBumper.checkToggle(gamepad2.dpad_left)) {
+                clawController.clawLeft();
+            }
+
+            if(rightBumper.checkToggle(gamepad2.dpad_right)) {
+                clawController.clawRight();
+            }
+
+            if(Math.abs(gamepad2.right_stick_x) > 0.1) {
+                clawController.adjustClaw(gamepad2.right_stick_x);
+            }
+
+            telemetry.addData("Claw Servo Position", clawServo.getPosition());
 
             telemetry.addData("Linear Slide Position", linearSlide.getCurrentPosition());
             telemetry.addData("Back Left Motor Position", backLeft.getCurrentPosition());
             telemetry.addData("Back Right Motor Position", backRight.getCurrentPosition());
             telemetry.addData("Front Left Motor Position", frontLeft.getCurrentPosition());
             telemetry.addData("Front Right Motor Position", frontRight.getCurrentPosition());
+
+            telemetry.addData("Left Distance Sensor IN", leftDistanceSensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("Right Distance Sensor IN", rightDistanceSensor.getDistance(DistanceUnit.INCH));
 
             telemetry.update();
 

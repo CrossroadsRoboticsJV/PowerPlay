@@ -13,7 +13,7 @@ import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
 @Autonomous
-public class AutoOpModeRightSide extends LinearOpMode {
+public class TestAuto extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;
     ColorSensor colorSensor;
@@ -39,72 +39,22 @@ public class AutoOpModeRightSide extends LinearOpMode {
 
         slideDownPos = linearSlide.getCurrentPosition();
 
-    }
-
-    @Override
-    public void runOpMode() throws InterruptedException {
-
-
-        initiate();
-        waitForStart();
         ColorSensorController colorController = new ColorSensorController(colorSensor);
         ClawController clawController = new ClawController(leftClaw, rightClaw, clawServo);
         LinearSlideController slideController = new LinearSlideController(linearSlide, slideDownPos);
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
         driveController.init();
 
-        clawController.toggleClaw();
-        sleep(500);
+    }
 
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.MID, 0.6);
 
-        driveController.forwards(0.7, 0.6);
-        driveController.forwards(0.2, 0.3);
+    @Override
+    public void runOpMode() throws InterruptedException {
 
-        sleep(250);
-        String color = colorController.readDominantColor();
-        sleep(250);
+        initiate();
+        waitForStart();
 
-        telemetry.addData("Color", color);
-        telemetry.update();
 
-        driveController.forwards(0.6, 0.4);
-        driveController.backwards(0.3, 0.5);
-
-        // Put cone on high pole
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.HIGH, 0.7);
-
-        driveController.left(1.55, 0.7);
-
-        sleep(1000);
-
-        slideController.update((float) 0.1, 0);
-        sleep(500);
-        slideController.update(0, 0);
-
-        clawController.toggleClaw();
-
-        sleep(200);
-
-        driveController.right(0.5, 0.7);
-
-        // Go to correct square
-        if(color.equals("red")) {
-
-            // Already there!
-
-        } else if(color.equals("green")) {
-
-            driveController.right(1, 0.7);
-
-        } else {
-
-            driveController.right(2.1, 0.7);
-
-        }
-
-        slideController.goToPos(LinearSlideController.LinearSlidePosition.DOWN, 0.5);
-        sleep(6000);
 
     }
 
