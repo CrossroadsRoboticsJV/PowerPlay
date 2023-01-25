@@ -3,6 +3,7 @@ package HelperClasses;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+
 public class LinearSlideController {
 
     DcMotorEx slideMotor;
@@ -31,19 +32,19 @@ public class LinearSlideController {
 
         if(leftTriggerPower > 0.1) {
 
-            if(slideMotor.getCurrentPosition() <= motorDownPosition - 50) {
+            if(slideMotor.getCurrentPosition() >= motorDownPosition - 50) {
                 slideMotor.setPower(0.4);
-            } else if(slideMotor.getCurrentPosition() >= motorDownPosition + 1) {
-                slideMotor.setPower(leftTriggerPower);
+            } else if(slideMotor.getCurrentPosition() >= motorDownPosition - 5) {
+                slideMotor.setPower(0.1);
             } else {
-                slideMotor.setPower(0.01);
+                slideMotor.setPower(leftTriggerPower);
             }
 
         } else if(rightTriggerPower > 0.1) {
 
             if(slideMotor.getCurrentPosition() <= motorDownPosition - 4100 + 50) {
                 slideMotor.setPower(-0.5);
-            } else if(slideMotor.getCurrentPosition() >= motorDownPosition - 4100) {
+            } else if(slideMotor.getCurrentPosition() >= motorDownPosition - 4100 + 5) {
                 slideMotor.setPower(-rightTriggerPower);
             } else {
                 slideMotor.setPower(-0.1);
@@ -79,6 +80,16 @@ public class LinearSlideController {
         slideMotor.setPower(power);
 
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void gotToPosInStack(int coneNumber, double power) {
+
+        slideMotor.setTargetPosition((int) (motorDownPosition - ((coneNumber - 1) * 170))); // 125 is pos per cone in stack
+
+        slideMotor.setPower(-power);
+
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
     }
 
 }
