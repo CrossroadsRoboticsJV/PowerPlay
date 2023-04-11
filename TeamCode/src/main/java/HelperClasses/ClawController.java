@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.checkerframework.checker.units.qual.C;
 
-// middle 0.57, left 0.89, right 0
+// middle 0.7, left 1, right 0.25
 
 public class ClawController {
 
@@ -33,18 +33,18 @@ public class ClawController {
     }
 
     void closeClaw() {
-        leftServo.setPosition(0.15);
-        rightServo.setPosition(0.8);
+        leftServo.setPosition(0.17);
+        rightServo.setPosition(0.78);
     }
 
     public void clawRight() {
 
         if(clawPosition == ClawPosition.LEFT) {
             clawPosition = ClawPosition.MIDDLE;
-            clawServo.setPosition(0.57);
+            clawServo.setPosition(0.7);
         } else if(clawPosition == ClawPosition.MIDDLE) {
             clawPosition = ClawPosition.RIGHT;
-            clawServo.setPosition(0);
+            clawServo.setPosition(0.25);
         }
 
     }
@@ -53,18 +53,18 @@ public class ClawController {
 
         if(clawPosition == ClawPosition.RIGHT) {
             clawPosition = ClawPosition.MIDDLE;
-            clawServo.setPosition(0.57);
+            clawServo.setPosition(0.7);
         } else if(clawPosition == ClawPosition.MIDDLE) {
             clawPosition = ClawPosition.LEFT;
-            clawServo.setPosition(0.89);
+            clawServo.setPosition(1);
         }
 
     }
 
     void interpretClawPosition() {
         double diff1 = Math.abs(clawServo.getPosition());
-        double diff2 = Math.abs(clawServo.getPosition() - 0.57);
-        double diff3 = Math.abs(clawServo.getPosition() - 0.89);
+        double diff2 = Math.abs(clawServo.getPosition() - 0.7);
+        double diff3 = Math.abs(clawServo.getPosition() - 1);
 
         if(diff1 < diff2 && diff1 < diff3) {
             clawPosition = ClawPosition.RIGHT;

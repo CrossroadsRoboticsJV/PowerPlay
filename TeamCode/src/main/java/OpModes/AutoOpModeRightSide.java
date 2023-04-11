@@ -12,7 +12,7 @@ import HelperClasses.ColorSensorController;
 import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
-@Autonomous
+//@Autonomous
 public class AutoOpModeRightSide extends LinearOpMode {
 
     DcMotorEx frontLeft, frontRight, backLeft, backRight, linearSlide;

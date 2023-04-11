@@ -53,7 +53,7 @@ public class BasicAutoOpMode extends LinearOpMode {
         DriveController driveController = new DriveController(frontLeft, backLeft, frontRight, backRight);
         driveController.init();
 
-        clawServo.setPosition(0.57);
+        clawServo.setPosition(0.7);
 
         clawController.toggleClaw();
         sleep(500);

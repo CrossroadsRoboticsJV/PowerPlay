@@ -2,6 +2,7 @@ package HelperClasses;
 
 import static java.lang.Thread.sleep;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,16 +12,28 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class DriveController {
 
     DcMotorEx frontLeft, backLeft, frontRight, backRight;
+    IMUController imuController;
     int tilesToPos = 1050;
-    double degreesToPos = 21.825;
+    double degreesToPos = 10.9;
 
     // ~ 55000 position (half for back wheels) for 7 rotations, giving ~ 7857 position for 360 and ~21.825 per 1 degree
+
+    public DriveController(DcMotorEx frontLeft, DcMotorEx backLeft, DcMotorEx frontRight, DcMotorEx backRight, IMUController imu) {
+        this.frontLeft = frontLeft;
+        this.backLeft = backLeft;
+        this.frontRight = frontRight;
+        this.backRight = backRight;
+
+        this.imuController = imu;
+    }
 
     public DriveController(DcMotorEx frontLeft, DcMotorEx backLeft, DcMotorEx frontRight, DcMotorEx backRight) {
         this.frontLeft = frontLeft;
         this.backLeft = backLeft;
         this.frontRight = frontRight;
         this.backRight = backRight;
+
+        this.imuController = null;
     }
 
     public void init() {
@@ -77,27 +90,39 @@ public class DriveController {
         backRight.setPower(v4 * speedFactor);
     }
 
+    public void turn(double leftPower, double rightPower) {
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        setRunWithoutEncoders();
+        frontLeft.setPower(leftPower);
+        frontRight.setPower(rightPower);
+        backLeft.setPower(leftPower);
+        backRight.setPower(rightPower);
+    }
+
     public void turnRight(double degrees, double power) {
         frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
-        frontRight.setTargetPosition(frontRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        frontRight.setTargetPosition(frontRight.getCurrentPosition() - (int) Math.round(degrees * degreesToPos));
         backLeft.setTargetPosition(backLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
-        backRight.setTargetPosition(backRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        backRight.setTargetPosition(backRight.getCurrentPosition() - (int) Math.round(degrees * degreesToPos));
         frontLeft.setPower(power);
-        frontRight.setPower(power);
-        backLeft.setPower(-power);
+        frontRight.setPower(-power);
+        backLeft.setPower(power);
         backRight.setPower(-power);
         setRunToPosition();
         waitForMotors();
     }
 
     public void turnLeft(double degrees, double power) {
-        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() - (int) Math.round(degrees * degreesToPos));
         frontRight.setTargetPosition(frontRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
-        backLeft.setTargetPosition(backLeft.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
+        backLeft.setTargetPosition(backLeft.getCurrentPosition() - (int) Math.round(degrees * degreesToPos));
         backRight.setTargetPosition(backRight.getCurrentPosition() + (int) Math.round(degrees * degreesToPos));
         frontLeft.setPower(-power);
-        frontRight.setPower(-power);
-        backLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(-power);
         backRight.setPower(power);
         setRunToPosition();
         waitForMotors();
@@ -178,6 +203,7 @@ public class DriveController {
         backRight.setPower(power);
         setRunToPosition();
         waitForMotors();
+
     }
 
     void setRunToPosition() {
@@ -202,7 +228,6 @@ public class DriveController {
     }
 
     public float forwardUntilPoleAndAdjust(DistanceController sensor) {
-        float startPos = frontLeft.getCurrentPosition();
         setRunWithoutEncoders();
         drive(0, -0.3, 0, 1);
         while(!(sensor.getDistance(DistanceUnit.INCH) < 6)) {
@@ -212,14 +237,15 @@ public class DriveController {
                 throw new RuntimeException("Uncaught", e);
             }
         }
+        float dist = (float) sensor.getDistance(DistanceUnit.INCH);
         drive(0, 0, 0, 0);
 
-        forwards(0.15, 0.2);
+        forwards(0.1, 0.2);
 
-        return((frontLeft.getCurrentPosition() - startPos) / tilesToPos);
+        return dist;
     }
 
-    public float backwardUntilPoleAndAdjust(DistanceController sensor, boolean right) {
+    public float backwardUntilPoleAndAdjust(DistanceController sensor) {
         float startPos = frontLeft.getCurrentPosition();
         setRunWithoutEncoders();
         drive(0, 0.3, 0, 1);
@@ -232,7 +258,7 @@ public class DriveController {
         }
         drive(0, 0, 0, 0);
 
-        backwards(0.15, 0.2);
+        forwards(0.1, 0.2);
 
         return((startPos - frontLeft.getCurrentPosition()) / tilesToPos);
     }

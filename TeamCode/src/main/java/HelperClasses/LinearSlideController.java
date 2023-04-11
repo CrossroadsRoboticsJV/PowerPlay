@@ -11,7 +11,7 @@ public class LinearSlideController {
 
     // motorDownPosition pos DOWN
     // -1510 pos LOW
-    // -2800 pos MID
+    // -2900 pos MID
     // -4100 pos HIGH
 
     public enum LinearSlidePosition {
@@ -68,7 +68,7 @@ public class LinearSlideController {
                 slideMotor.setTargetPosition(motorDownPosition - 1510);
                 break;
             case MID:
-                slideMotor.setTargetPosition(motorDownPosition - 2800);
+                slideMotor.setTargetPosition(motorDownPosition - 2900);
                 break;
             case HIGH:
                 slideMotor.setTargetPosition(motorDownPosition - 4100);
@@ -82,7 +82,7 @@ public class LinearSlideController {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void gotToPosInStack(int coneNumber, double power) {
+    public void goToPosInStack(int coneNumber, double power) {
 
         slideMotor.setTargetPosition((int) (motorDownPosition - ((coneNumber - 1) * 170))); // 125 is pos per cone in stack
 
