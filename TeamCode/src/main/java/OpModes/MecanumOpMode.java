@@ -17,8 +17,6 @@ import HelperClasses.DistanceController;
 import HelperClasses.DriveController;
 import HelperClasses.LinearSlideController;
 
-//hehehehehehe
-
 @TeleOp
 public class MecanumOpMode extends LinearOpMode {
 
