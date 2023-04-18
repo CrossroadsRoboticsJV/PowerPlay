@@ -16,8 +16,6 @@ public class ButtonToggler {
 
             }
 
-            firstPressed = false;
-
         } else {
             firstPressed = true;
         }
